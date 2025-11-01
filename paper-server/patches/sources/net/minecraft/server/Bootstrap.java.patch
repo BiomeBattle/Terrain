@@ -19,7 +19,8 @@
 +                    });
 +                    // Paper end
                      CreativeModeTabs.validate();
-                     wrapStreams();
+-                    wrapStreams();
++                    // wrapStreams(); // Terrain - Remove STDOUT/STDERR to allow for nice logging.
                      bootstrapDuration.set(Duration.between(instant, Instant.now()).toMillis());
                  }
 +                // CraftBukkit start

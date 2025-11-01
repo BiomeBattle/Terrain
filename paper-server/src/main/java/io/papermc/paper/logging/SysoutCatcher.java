@@ -32,8 +32,10 @@ public final class SysoutCatcher {
     private final ConcurrentMap<String, PluginNag> nagRecords = new ConcurrentHashMap<>(64);
 
     public SysoutCatcher() {
-        System.setOut(new WrappedOutStream(System.out, Level.INFO, "[STDOUT] "));
-        System.setErr(new WrappedOutStream(System.err, Level.SEVERE, "[STDERR] "));
+        // Terrain start - no need to wrap if nags are suppressed
+        // System.setOut(new WrappedOutStream(System.out, Level.INFO, "[STDOUT] "));
+        // System.setErr(new WrappedOutStream(System.err, Level.SEVERE, "[STDERR] "));
+        // Terrain end
     }
 
     private final class WrappedOutStream extends PrintStream {
@@ -55,30 +57,7 @@ public final class SysoutCatcher {
 
                 // Instead of just printing the message, send it to the plugin's logger
                 plugin.getLogger().log(this.level, this.prefix + line);
-
-                if (SysoutCatcher.SUPPRESS_NAGS) {
-                    return;
-                }
-                if (SysoutCatcher.NAG_INTERVAL > 0 || SysoutCatcher.NAG_TIMEOUT > 0) {
-                    final PluginNag nagRecord = SysoutCatcher.this.nagRecords.computeIfAbsent(plugin.getName(), k -> new PluginNag());
-                    final boolean hasTimePassed = SysoutCatcher.NAG_TIMEOUT > 0
-                        && (nagRecord.lastNagTimestamp == Long.MIN_VALUE
-                        || nagRecord.lastNagTimestamp + SysoutCatcher.NAG_TIMEOUT <= System.nanoTime());
-                    final boolean hasMessagesPassed = SysoutCatcher.NAG_INTERVAL > 0
-                        && (nagRecord.messagesSinceNag == Long.MIN_VALUE
-                        || ++nagRecord.messagesSinceNag >= SysoutCatcher.NAG_INTERVAL);
-                    if (!hasMessagesPassed && !hasTimePassed) {
-                        return;
-                    }
-                    nagRecord.lastNagTimestamp = System.nanoTime();
-                    nagRecord.messagesSinceNag = 0;
-                }
-                Bukkit.getLogger().warning(
-                    String.format("Nag author(s): '%s' of '%s' about their usage of System.out/err.print. "
-                            + "Please use your plugin's logger instead (JavaPlugin#getLogger).",
-                        plugin.getPluginMeta().getAuthors(),
-                        plugin.getPluginMeta().getDisplayName())
-                );
+                // Terrain - Remove System.out nags we know what we're doing!
             } catch (final IllegalArgumentException | IllegalStateException e) {
                 // If anything happens, the calling class doesn't exist, there is no JavaPlugin that "owns" the calling class, etc
                 // Just print out normally, with some added information
