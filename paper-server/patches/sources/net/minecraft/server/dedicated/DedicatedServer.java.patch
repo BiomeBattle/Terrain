@@ -137,7 +137,7 @@
          InetAddress inetAddress = null;
          if (!this.getLocalIp().isEmpty()) {
              inetAddress = InetAddress.getByName(this.getLocalIp());
-@@ -234,46 +_,72 @@
+@@ -234,46 +_,60 @@
          if (this.getPort() < 0) {
              this.setPort(properties.serverPort);
          }
@@ -159,6 +159,7 @@
              return false;
          }
  
+-        if (!this.usesAuthentication()) {
 +        // CraftBukkit start
 +        this.server.loadPlugins();
 +        this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.STARTUP);
@@ -166,27 +167,16 @@
 +
 +        // Paper start - Add Velocity IP Forwarding Support
 +        boolean usingProxy = org.spigotmc.SpigotConfig.bungee || io.papermc.paper.configuration.GlobalConfiguration.get().proxies.velocity.enabled;
-+        String proxyFlavor = (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.velocity.enabled) ? "Velocity" : "BungeeCord";
-+        String proxyLink = (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.velocity.enabled) ? "https://docs.papermc.io/velocity/security" : "http://www.spigotmc.org/wiki/firewall-guide/";
-+        // Paper end - Add Velocity IP Forwarding Support
-         if (!this.usesAuthentication()) {
++        // Terrain start - Remove warning for offline mode warning if using proxy
++        if (!this.usesAuthentication() && !usingProxy) {
              LOGGER.warn("**** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!");
              LOGGER.warn("The server will make no attempt to authenticate usernames. Beware.");
 -            LOGGER.warn(
 -                "While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose."
 -            );
-+            // Spigot start
-+            // Paper start - Add Velocity IP Forwarding Support
-+            if (usingProxy) {
-+                LOGGER.warn("Whilst this makes it possible to use {}, unless access to your server is properly restricted, it also opens up the ability for hackers to connect with any username they choose.", proxyFlavor);
-+                LOGGER.warn("Please see {} for further information.", proxyLink);
-+                // Paper end - Add Velocity IP Forwarding Support
-+            } else {
-+                LOGGER.warn("While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.");
-+            }
-+            // Spigot end
-             LOGGER.warn("To change this, set \"online-mode\" to \"true\" in the server.properties file.");
+-            LOGGER.warn("To change this, set \"online-mode\" to \"true\" in the server.properties file.");
          }
++        // Terrain end
  
 +        // CraftBukkit start
 +        /*
