@@ -1,0 +1,13 @@
+--- a/net/minecraft/world/entity/projectile/ProjectileUtil.java
++++ b/net/minecraft/world/entity/projectile/ProjectileUtil.java
+@@ -104,7 +_,9 @@
+     }
+ 
+     public static float computeMargin(Entity entity) {
+-        return Math.max(0.0F, Math.min(0.3F, (entity.tickCount - 2) / 20.0F));
++        // Terrain Start - Remove dynamic arrow margins
++        return 0.3F;
++        // Terrain End
+     }
+ 
+     @Nullable
